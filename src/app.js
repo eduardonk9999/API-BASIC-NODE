@@ -1,5 +1,6 @@
 const express = require('express');
 const usuariosRoutes = require('./routes/usuarios.routes');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
@@ -10,5 +11,6 @@ app.get('/', (request, response) => {
 });
 
 app.use('/usuarios', usuariosRoutes);
+app.use(errorHandler);
 
 module.exports = app;
