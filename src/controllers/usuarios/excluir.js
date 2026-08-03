@@ -1,7 +1,7 @@
 const usuariosService = require('../../services/usuarios.service');
 
-function excluir(request, response) {
-  usuariosService.excluir(request.params.id);
+async function excluir(request, response) {
+  await usuariosService.excluir(request.params.id);
   return response.status(204).send();
 }
 

@@ -1,7 +1,8 @@
 const usuariosService = require('../../services/usuarios.service');
 
-function buscarPorId(request, response) {
-  return response.json(usuariosService.buscarPorId(request.params.id));
+async function buscarPorId(request, response) {
+  const usuario = await usuariosService.buscarPorId(request.params.id);
+  return response.json(usuario);
 }
 
 module.exports = buscarPorId;

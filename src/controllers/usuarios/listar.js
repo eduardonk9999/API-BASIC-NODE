@@ -1,7 +1,8 @@
 const usuariosService = require('../../services/usuarios.service');
 
-function listar(request, response) {
-  return response.json(usuariosService.listar());
+async function listar(request, response) {
+  const usuarios = await usuariosService.listar();
+  return response.json(usuarios);
 }
 
 module.exports = listar;

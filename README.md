@@ -1,11 +1,13 @@
 # API Basic Node
 
-API REST para cadastro de usuários, desenvolvida com Node.js e Express. O projeto demonstra um CRUD completo com uma estrutura modular e separação entre rotas, controllers, regras de negócio e acesso aos dados.
+API REST para cadastro de usuários, desenvolvida com Node.js, Express e MongoDB. O projeto demonstra um CRUD completo com uma estrutura modular e separação entre rotas, controllers, regras de negócio e acesso aos dados.
 
 ## Tecnologias
 
 - Node.js
 - Express 5
+- MongoDB
+- Mongoose
 - JavaScript (CommonJS)
 
 ## Funcionalidades
@@ -34,10 +36,25 @@ Instale as dependências:
 npm install
 ```
 
+Crie o arquivo de ambiente a partir do exemplo:
+
+```bash
+cp .env.example .env
+```
+
+Configure a conexão no `.env`:
+
+```env
+PORT=3000
+MONGODB_URI=mongodb://127.0.0.1:27017/api-basic-node
+```
+
+O endereço também pode ser substituído pela URI de um cluster do MongoDB Atlas.
+
 Inicie o servidor:
 
 ```bash
-node server.js
+npm start
 ```
 
 A API estará disponível em `http://localhost:3000`.
@@ -121,7 +138,7 @@ curl --request DELETE http://localhost:3000/usuarios/1
 
 ## Armazenamento
 
-Os usuários são armazenados em memória. Os dados são apagados sempre que o servidor é reiniciado. Em uma aplicação de produção, o repository pode ser substituído por uma integração com banco de dados sem alterar as rotas da API.
+Os usuários são persistidos no MongoDB por meio do Mongoose. O campo `_id` é gerado pelo banco, e os campos `createdAt` e `updatedAt` são preenchidos automaticamente.
 
 ## Formato dos dados
 

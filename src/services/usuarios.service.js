@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const AppError = require('../errors/AppError');
 const usuariosRepository = require('../repositories/usuarios.repository');
 
@@ -5,8 +6,12 @@ function listar() {
   return usuariosRepository.listar();
 }
 
-function buscarPorId(id) {
-  const usuario = usuariosRepository.buscarPorId(Number(id));
+async function buscarPorId(id) {
+  if (!mongoose.isValidObjectId(id)) {
+    throw new AppError('ID de usuário inválido.');
+  }
+
+  const usuario = await usuariosRepository.buscarPorId(id);
 
   if (!usuario) {
     throw new AppError('Usuário não encontrado.', 404);
@@ -21,29 +26,29 @@ function validarDadosObrigatorios({ nome, email }) {
   }
 }
 
-function validarEmailDisponivel(email, usuarioId) {
-  const usuario = usuariosRepository.buscarPorEmail(email);
+async function validarEmailDisponivel(email, usuarioId) {
+  const usuario = await usuariosRepository.buscarPorEmail(email);
 
   if (usuario && usuario.id !== usuarioId) {
     throw new AppError('E-mail já cadastrado.', 409);
   }
 }
 
-function criar(dados) {
+async function criar(dados) {
   validarDadosObrigatorios(dados);
-  validarEmailDisponivel(dados.email);
+  await validarEmailDisponivel(dados.email);
   return usuariosRepository.criar(dados);
 }
 
-function substituir(id, dados) {
-  const usuario = buscarPorId(id);
+async function substituir(id, dados) {
+  const usuario = await buscarPorId(id);
   validarDadosObrigatorios(dados);
-  validarEmailDisponivel(dados.email, usuario.id);
+  await validarEmailDisponivel(dados.email, usuario.id);
   return usuariosRepository.atualizar(usuario.id, dados);
 }
 
-function atualizar(id, dados) {
-  const usuario = buscarPorId(id);
+async function atualizar(id, dados) {
+  const usuario = await buscarPorId(id);
   const dadosPermitidos = {};
 
   if (dados.nome !== undefined) dadosPermitidos.nome = dados.nome;
@@ -54,15 +59,15 @@ function atualizar(id, dados) {
   }
 
   if (dadosPermitidos.email !== undefined) {
-    validarEmailDisponivel(dadosPermitidos.email, usuario.id);
+    await validarEmailDisponivel(dadosPermitidos.email, usuario.id);
   }
 
   return usuariosRepository.atualizar(usuario.id, dadosPermitidos);
 }
 
-function excluir(id) {
-  const usuario = buscarPorId(id);
-  usuariosRepository.excluir(usuario.id);
+async function excluir(id) {
+  const usuario = await buscarPorId(id);
+  await usuariosRepository.excluir(usuario.id);
 }
 
 module.exports = {

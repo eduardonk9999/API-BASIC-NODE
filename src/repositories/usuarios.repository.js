@@ -1,44 +1,30 @@
-let proximoId = 1;
-const usuarios = [];
+const Usuario = require('../models/Usuario');
 
 function listar() {
-  return usuarios;
+  return Usuario.find().sort({ createdAt: -1 });
 }
 
 function buscarPorId(id) {
-  return usuarios.find((usuario) => usuario.id === id);
+  return Usuario.findById(id);
 }
 
 function buscarPorEmail(email) {
-  return usuarios.find((usuario) => usuario.email === email);
+  return Usuario.findOne({ email: email.toLowerCase() });
 }
 
 function criar(dados) {
-  const usuario = { id: proximoId++, ...dados };
-  usuarios.push(usuario);
-  return usuario;
+  return Usuario.create(dados);
 }
 
 function atualizar(id, dados) {
-  const indice = usuarios.findIndex((usuario) => usuario.id === id);
-
-  if (indice === -1) {
-    return null;
-  }
-
-  usuarios[indice] = { ...usuarios[indice], ...dados, id };
-  return usuarios[indice];
+  return Usuario.findByIdAndUpdate(id, dados, {
+    new: true,
+    runValidators: true,
+  });
 }
 
 function excluir(id) {
-  const indice = usuarios.findIndex((usuario) => usuario.id === id);
-
-  if (indice === -1) {
-    return false;
-  }
-
-  usuarios.splice(indice, 1);
-  return true;
+  return Usuario.findByIdAndDelete(id);
 }
 
 module.exports = {
