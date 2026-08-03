@@ -1,30 +1,53 @@
-const Usuario = require('../models/Usuario');
+const prisma = require('../config/prisma');
 
 function listar() {
-  return Usuario.find().sort({ createdAt: -1 });
+  return prisma.usuario.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
 }
 
 function buscarPorId(id) {
-  return Usuario.findById(id);
+  return prisma.usuario.findUnique({
+    where: { id },
+  });
 }
 
 function buscarPorEmail(email) {
-  return Usuario.findOne({ email: email.toLowerCase() });
+  return prisma.usuario.findUnique({
+    where: { email: email.toLowerCase() },
+  });
 }
 
 function criar(dados) {
-  return Usuario.create(dados);
+  return prisma.usuario.create({
+    data: {
+      nome: dados.nome.trim(),
+      email: dados.email.toLowerCase().trim(),
+    },
+  });
 }
 
 function atualizar(id, dados) {
-  return Usuario.findByIdAndUpdate(id, dados, {
-    new: true,
-    runValidators: true,
+  const dadosNormalizados = { ...dados };
+
+  if (dadosNormalizados.nome !== undefined) {
+    dadosNormalizados.nome = dadosNormalizados.nome.trim();
+  }
+
+  if (dadosNormalizados.email !== undefined) {
+    dadosNormalizados.email = dadosNormalizados.email.toLowerCase().trim();
+  }
+
+  return prisma.usuario.update({
+    where: { id },
+    data: dadosNormalizados,
   });
 }
 
 function excluir(id) {
-  return Usuario.findByIdAndDelete(id);
+  return prisma.usuario.delete({
+    where: { id },
+  });
 }
 
 module.exports = {

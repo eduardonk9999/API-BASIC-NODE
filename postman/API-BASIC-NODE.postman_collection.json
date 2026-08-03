@@ -1,0 +1,197 @@
+{
+  "info": {
+    "name": "API Basic Node",
+    "description": "Testes automatizados do CRUD de usuários com Express, Prisma e MongoDB.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "testEmail",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Cadastrar usuário",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set('testEmail', `postman.${Date.now()}@example.com`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Retorna 201', () => pm.response.to.have.status(201));",
+              "const usuario = pm.response.json();",
+              "pm.expect(usuario).to.have.property('id');",
+              "pm.expect(usuario.nome).to.eql('Usuário Postman');",
+              "pm.collectionVariables.set('userId', usuario.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Usuário Postman\",\n  \"email\": \"{{testEmail}}\"\n}"
+        },
+        "url": "{{baseUrl}}/usuarios"
+      }
+    },
+    {
+      "name": "Listar usuários",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Retorna 200 e uma lista', () => {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json()).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/usuarios"
+      }
+    },
+    {
+      "name": "Buscar usuário por ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Retorna o usuário criado', () => {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('userId'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/usuarios/{{userId}}"
+      }
+    },
+    {
+      "name": "Substituir usuário",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Retorna os dados substituídos', () => {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().nome).to.eql('Usuário substituído');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Usuário substituído\",\n  \"email\": \"{{testEmail}}\"\n}"
+        },
+        "url": "{{baseUrl}}/usuarios/{{userId}}"
+      }
+    },
+    {
+      "name": "Atualizar usuário parcialmente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Retorna o nome atualizado', () => {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().nome).to.eql('Usuário atualizado');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Usuário atualizado\"\n}"
+        },
+        "url": "{{baseUrl}}/usuarios/{{userId}}"
+      }
+    },
+    {
+      "name": "Excluir usuário",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Retorna 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/usuarios/{{userId}}"
+      }
+    },
+    {
+      "name": "Confirmar exclusão",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Retorna 404', () => pm.response.to.have.status(404));",
+              "pm.expect(pm.response.json().message).to.eql('Usuário não encontrado.');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/usuarios/{{userId}}"
+      }
+    }
+  ]
+}

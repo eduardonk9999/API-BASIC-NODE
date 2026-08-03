@@ -1,13 +1,14 @@
-const mongoose = require('mongoose');
 const AppError = require('../errors/AppError');
 const usuariosRepository = require('../repositories/usuarios.repository');
+
+const objectIdPattern = /^[a-f\d]{24}$/i;
 
 function listar() {
   return usuariosRepository.listar();
 }
 
 async function buscarPorId(id) {
-  if (!mongoose.isValidObjectId(id)) {
+  if (!objectIdPattern.test(id)) {
     throw new AppError('ID de usuário inválido.');
   }
 
@@ -21,13 +22,19 @@ async function buscarPorId(id) {
 }
 
 function validarDadosObrigatorios({ nome, email }) {
-  if (!nome || !email) {
+  if (typeof nome !== 'string' || !nome.trim() || typeof email !== 'string' || !email.trim()) {
     throw new AppError('Nome e e-mail são obrigatórios.');
   }
 }
 
+function validarCampoOpcional(valor, campo) {
+  if (valor !== undefined && (typeof valor !== 'string' || !valor.trim())) {
+    throw new AppError(`O campo ${campo} deve ser um texto válido.`);
+  }
+}
+
 async function validarEmailDisponivel(email, usuarioId) {
-  const usuario = await usuariosRepository.buscarPorEmail(email);
+  const usuario = await usuariosRepository.buscarPorEmail(email.trim());
 
   if (usuario && usuario.id !== usuarioId) {
     throw new AppError('E-mail já cadastrado.', 409);
@@ -44,12 +51,18 @@ async function substituir(id, dados) {
   const usuario = await buscarPorId(id);
   validarDadosObrigatorios(dados);
   await validarEmailDisponivel(dados.email, usuario.id);
-  return usuariosRepository.atualizar(usuario.id, dados);
+  return usuariosRepository.atualizar(usuario.id, {
+    nome: dados.nome,
+    email: dados.email,
+  });
 }
 
 async function atualizar(id, dados) {
   const usuario = await buscarPorId(id);
   const dadosPermitidos = {};
+
+  validarCampoOpcional(dados.nome, 'nome');
+  validarCampoOpcional(dados.email, 'email');
 
   if (dados.nome !== undefined) dadosPermitidos.nome = dados.nome;
   if (dados.email !== undefined) dadosPermitidos.email = dados.email;

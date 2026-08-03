@@ -1,14 +1,12 @@
-const mongoose = require('mongoose');
+const prisma = require('./prisma');
 
 async function conectarBanco() {
-  const mongoUri = process.env.MONGODB_URI;
-
-  if (!mongoUri) {
-    throw new Error('A variável MONGODB_URI não foi definida.');
+  if (!process.env.DATABASE_URL) {
+    throw new Error('A variável DATABASE_URL não foi definida.');
   }
 
-  await mongoose.connect(mongoUri);
-  console.log('MongoDB conectado.');
+  await prisma.$connect();
+  console.log('MongoDB conectado pelo Prisma.');
 }
 
 module.exports = conectarBanco;

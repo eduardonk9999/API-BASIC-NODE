@@ -1,10 +1,10 @@
 function errorHandler(error, request, response, next) {
-  if (error.code === 11000) {
+  if (error.code === 'P2002') {
     return response.status(409).json({ message: 'E-mail já cadastrado.' });
   }
 
-  if (error.name === 'ValidationError') {
-    return response.status(400).json({ message: error.message });
+  if (error.code === 'P2023') {
+    return response.status(400).json({ message: 'ID de usuário inválido.' });
   }
 
   if (error.statusCode) {
